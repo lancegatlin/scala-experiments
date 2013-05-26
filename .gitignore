@@ -1,0 +1,147 @@
+# /
+~/
+sbt.sh
+.idea_modules/
+.idea/
+.classpath
+.project
+.settings
+.cache
+.target/
+target
+/*.iml
+atlassian-ide-plugin.xml
+/ap.ipr
+/ap.iws
+/com/
+banner-service/target/
+general-webservices/target/
+persistence/target/
+tst-dbunit/target/
+utilities/target/
+common-testing/target/
+web-components/target/
+data-load/target/
+wsdlgen/target/
+simulator/target/
+/project/cpd4sbt/
+/project/junit_xml_listener/
+/project-sbt.0.7.7/project.iml
+/project-sbt.0.7.7/boot/
+/project-sbt.0.7.7/build/target/
+/project/target
+/project/project/target
+/project/project/sbt-scct/target
+/project/project/sbt-selenium/target
+/project/project/sbt-scct/project/target
+/project/project/sbt-selenium/project/target
+/project/sbt-selenium/target
+/out
+ap2.war
+chromedriver.log
+jacoco-coverage
+*.log
+
+# ignore Play log directories, IDE cruft
+logs/
+target/
+# Ignore non-root bin directories (for eclispe users b/c eclipse puts binaries in bin directories)
+bin/
+!/bin
+**/**/RUNNING_PID
+
+# Scripts to update idea but leaves settings intact
+cleanideaproject
+ideamodulesettings.py
+updateidea
+
+# /ap-common/
+/ap-common/.settings
+/ap-common/*.classpath
+/ap-common/*.project
+/ap-common/target
+/ap-common/reports
+/ap-common/*.iml
+/ap-common/lib_managed
+/ap-common/.scala_dependencies
+/ap-common/.cache
+
+# /ap-lift/
+/ap-lift/Lift UI.iml
+/ap-lift/ap-lift.iml
+/ap-lift/target
+/ap-lift/.classpath
+/ap-lift/.project
+/ap-lift/.scala_dependencies
+/ap-lift/lib_managed
+
+# /ap-lift/src/main/webapp/images/hotel_logo/
+/ap-lift/src/main/webapp/images/hotel_logo/css
+/ap-lift/src/main/webapp/images/hotel_logo/hotel_list.html
+/ap-lift/.cache
+
+# /ap-server/
+/ap-server/Server - all Scala.iml
+/ap-server/.settings
+/ap-server/.classpath
+/ap-server/.project
+/ap-server/.scala_dependencies
+/ap-server/target
+/ap-server/reports
+/ap-server/ap-server.iml
+/ap-server/lib_managed
+/ap-server/src/main/scala/ap/server/adapter/ati/hotel/LogHandler.java
+
+# /ap-server/src/wsdl/travelport/
+/ap-server/src/wsdl/travelport/uapi-11.2.02-v11.2
+/ap-server/.cache
+
+# / ap-dbservices
+/ap-dbservices/target
+/ap-dbservices/ap-dbservices.iml
+
+# common-testing
+common-testing/target/
+
+# common-web
+common/web/bin/
+
+# web-components
+web-components/target/
+
+# /web-testing/
+/web-testing/target
+
+# /web-admin/
+/web-admin/Lift UI.iml
+/web-admin/web-admin.iml
+/web-admin/target
+/web-admin/.classpath
+/web-admin/.project
+/web-admin/.scala_dependencies
+/web-admin/lib_managed
+
+# /persistence
+
+/persistence/target
+
+# /licensee-migration
+/licensee-migration/target
+
+# /utilities
+/utilities/target
+
+# /tst-dbunit
+/tst-dbunit/target
+
+db-scripts/mypol.pp
+db-scripts/mypol.te
+
+project/plugins/lib_managed/scala_2.7.7
+project/plugins/src_managed
+project/plugins/target
+project/plugins/project
+
+creditcard/target/
+
+air/web/target/
