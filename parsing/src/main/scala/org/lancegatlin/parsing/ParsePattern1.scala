@@ -28,7 +28,7 @@ object ParsePattern1 {
 
       // If the age element is missing, execution will not reach this point
       // Using Try here to suppress the NumberFormatException
-      age <- Try(s_age.toInt).toOption
+      age <- Try(s_age.toInt).toOption.filter(_ < 150)
     } yield
       Person(firstName,middleName,lastName,age)
 

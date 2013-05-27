@@ -23,7 +23,7 @@ object ParsePattern5 {
       optMiddleName <- { e:NodeSeq => (e \ "middleName").headOption.map(_.text) }
       optLastName <- { e:NodeSeq => (e \ "lastName").headOption.map(_.text) }
       optSAge <- { e:NodeSeq => (e \ "age").headOption.map(_.text) }
-      optAge <- { e:NodeSeq => optSAge.map(s_age => Try(s_age.toInt).toOption).flatten }
+      optAge <- { e:NodeSeq => optSAge.map(s_age => Try(s_age.toInt).toOption.filter(_< 150)).flatten }
     } yield
       ParsePattern4.lift4(Person.apply)(optFirstName,optMiddleName,optLastName,optAge)
 

@@ -33,7 +33,8 @@ object ParsePattern2 {
       lastName <- (xml\"lastName").headOption.map(_.text) orErr("Missing last name!")
       s_age <- (xml\"age").headOption.map(_.text) orErr("Missing age!")
       age <- Try(s_age.toInt).toOption orErr(s"'$s_age' is not a number!")
+      validAge <- Some(age).filter(_ < 150) orErr(s"'$s_age' is not less than 150!")
     } yield
-      Person(firstName,middleName,lastName,age)
+      Person(firstName,middleName,lastName,validAge)
 }
 

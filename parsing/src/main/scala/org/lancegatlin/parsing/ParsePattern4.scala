@@ -111,6 +111,11 @@ object ParsePattern4 {
           s_age <- optSAge
         } yield Parse(Some(s_age.toInt)).orLog(s"$s_age is an invalid number!")
       }
+      optValidAge <-Parse.flatten {
+        for {
+          age <- optAge
+        } yield Parse(Some(age).filter(_ < 150)).orLog(s"$age is not less than 150!")
+      }
     } yield
       lift4(Person.apply)(optFirstName,optMiddleName,optLastName,optAge)
 }

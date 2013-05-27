@@ -128,6 +128,14 @@ object ParsePattern6 {
             case None => false
           }
         }
+      ) ++
+      rule("age must be less than 150")(
+        test = {
+          Try(svals.getField("age").get.toInt) match {
+            case Success(value) => value < 150
+            case _ => false
+          }
+        }
       ) match {
         case Nil => Right(ValidStringValues[Person](svals))
         case list  => Left(list)

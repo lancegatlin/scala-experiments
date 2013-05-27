@@ -46,12 +46,20 @@ object ParseApp extends App {
           <age>thirty-five!</age>
         </person>
       </document> ::
-        <document>
-          <person>
-            <firstName>Lance</firstName>
-            <lastName>Gatlin</lastName>
-          </person>
-        </document> ::
+      <document>
+        <person>
+          <firstName>Lance</firstName>
+          <lastName>Gatlin</lastName>
+        </person>
+      </document> ::
+      <document>
+        <person>
+          <firstName>Lance</firstName>
+          <middleName>David</middleName>
+          <lastName>Gatlin</lastName>
+          <age>165</age>
+        </person>
+      </document> ::
       Nil
 
     xml map(xml => ParsePattern1.parsePerson(xml \ "person")) foreach(println(_))
