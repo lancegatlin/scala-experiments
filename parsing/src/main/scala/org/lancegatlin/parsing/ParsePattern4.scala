@@ -1,8 +1,9 @@
 package org.lancegatlin.parsing
 
 import scala.xml._
+import scala.util.Try
 
-// This parser that provides a log (a monad Writer) inaddition to the result of the parse
+// This parser provides a log (a monad Writer) in addition to the result of the parse
 // The log can be used to return error messages for all problems detected
 // Or it can be used to return warnings, info, etc
 object ParsePattern4 {
@@ -67,7 +68,7 @@ object ParsePattern4 {
     for {
 
       // 1) Construct a Parse object
-      // 2) Extract firstName from xml and get its text value as above
+      // 2) Extract firstName from xml and get its text value as previously
       // 3) If this fails (or throws an exception) then None is returned
       // 4) orLog will ensure that if None is returned then the message is logged (also the exception if any)
       // 5) As execution flows down the for-comprehension, the Parse repr/flatMap functions will ensure that log items
@@ -109,7 +110,7 @@ object ParsePattern4 {
       optAge <- Parse.flatten {
         for {
           s_age <- optSAge
-        } yield Parse(Some(s_age.toInt)).orLog(s"$s_age is an invalid number!")
+        } yield Parse(Try(s_age.toInt).toOption).orLog(s"$s_age is an invalid number!")
       }
       optValidAge <-Parse.flatten {
         for {
@@ -117,6 +118,6 @@ object ParsePattern4 {
         } yield Parse(Some(age).filter(_ < 150)).orLog(s"$age is not less than 150!")
       }
     } yield
-      lift4(Person.apply)(optFirstName,optMiddleName,optLastName,optAge)
+      lift4(Person.apply)(optFirstName,optMiddleName,optLastName,optValidAge)
 }
 

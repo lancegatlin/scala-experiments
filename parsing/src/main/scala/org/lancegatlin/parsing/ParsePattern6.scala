@@ -3,21 +3,20 @@ package org.lancegatlin.parsing
 import scala.collection.immutable
 import scala.xml._
 import scala.util._
+import java.lang.NumberFormatException
 
 // This pattern breaks parsing into three phases:
 // 1) Extraction: extract strings from input and map to key-value pairs (StringValues)
-// 2) Validation: ensure all values are set and are the correct types and return ValidStringValues[A]
+// 2) Validation: ensure all values are set and are the correct types. Returns ValidStringValues[A] if everythings valid
 // 3) Convert: safely convert from ValidStringValues[A] to A
 // Pros:
 // 1) Allows re-use of validation and conversion code by writing different extractors (extract from XML, JSON, CSV,
 // etc)
 // 2) Code could be written to allow for automatically extracting, validating and converting case classes using
-// reflection
+// reflection or macros
 // Cons:
 // 1) Much more verbose
-// 2) Ordering of key-values is discarded and assumed to not be meaningful
-// 3) No mechanism for validation messages to be associated with where they occur in the source
-// 4) StringValues should be probably be expanded
+// 2) No mechanism for validation messages to be associated with where they occur in the source
 object ParsePattern6 {
   case class Person(
     firstName: String,
@@ -131,9 +130,12 @@ object ParsePattern6 {
       ) ++
       rule("age must be less than 150")(
         test = {
-          Try(svals.getField("age").get.toInt) match {
-            case Success(value) => value < 150
-            case _ => false
+          svals.getField("age") match {
+            case Some(s_age) => Try(s_age.toInt) match {
+              case Success(age) => age < 150
+              case _ => true // Don't fire the rule if its an Int
+            }
+            case None => true // Don't fire the rule if its missing
           }
         }
       ) match {

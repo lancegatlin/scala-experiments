@@ -1,5 +1,6 @@
 package org.lancegatlin.parsing
 
+import scala.util._
 
 object ParseApp extends App {
 // TODO: Move this to separate experiment don't complicate this example with custom XML dsl
@@ -60,20 +61,36 @@ object ParseApp extends App {
           <age>165</age>
         </person>
       </document> ::
+      <document>
+        <person>
+          <firstName></firstName>
+          <middleName></middleName>
+          <lastName></lastName>
+          <age>-1</age>
+        </person>
+      </document> ::
       Nil
 
+    println("Parse1\n----")
     xml map(xml => ParsePattern1.parsePerson(xml \ "person")) foreach(println(_))
-    println
+    println("Parse2\n----")
     xml map(xml => ParsePattern2.parsePerson(xml \ "person")) foreach(println(_))
-    println
+    println("Parse4\n----")
     xml map(xml => ParsePattern4.parsePerson(xml \ "person")) foreach(println(_))
-    println
+    println("Parse5\n----")
     xml map(xml => ParsePattern5.parsePerson(xml \ "person")) foreach(println(_))
-    println
+    println("Parse6\n----")
     import ParsePattern6._ // implicits
     xml map(xml => ParsePattern6.PersonParser.parse(xml \ "person")) foreach(println(_))
-    println
+    println("Parse7\n----")
     xml map(xml => ParsePattern7.parsePerson(xml \ "person")) foreach(println(_))
-    println
+    println("Parse8\n----")
+    xml map(xml => ParsePattern8.parsePerson(xml \ "person")) foreach(println(_))
+    println("Parse9\n----")
+    xml map(xml => ParsePattern9.parsePerson(xml \ "person")) foreach(println(_))
+
+//    println(Try(ParsePattern8.Person("l","d","g",165)))
+//    println(Try(ParsePattern8.Person("","","",-1)))
   }
 }
+

@@ -21,8 +21,7 @@ import scala.util.Try
 // 1) JSON must be utilized even when constructing a Person instance in memory (this could be avoided with a more
 // complex design that makes the validation independent of JSON but probably not worth the trade off)
 // 2) No way to tie where in the original source the error occurred (e.g. xml,csv) to the error message returned
-// 3) All validation errors will be reported as play JSON errors, which might be unexpected especially when constructing
-// an in-memory Person
+// 3) All validation errors will be reported as play JSON errors
 object ParsePattern7 {
   // Prevent construction except by object Person.fromJson
   case class Person private(
