@@ -37,7 +37,7 @@ object ParsePattern9 {
   object TryWriter {
     def apply[A](f: => A) : TryWriter[A] = Try(f) match {
       case Success(value) => TryWriter(Nil, Some(value))
-      case Failure(ex : Throwable) => TryWriter(ex :: Nil, None)
+      case Failure(ex) => TryWriter(ex :: Nil, None)
     }
   }
 
@@ -47,21 +47,38 @@ object ParsePattern9 {
   // ...
 
   
-  implicit class pimpMyListException(val me: List[Exception]) extends AnyVal {
+  implicit class pimpMyListException(val me: List[Throwable]) extends AnyVal {
     def hasFailures = me.length > 0
     def throwIfFailure : Unit = if(hasFailures) throw Exceptions(me)
   }
 
-  case class ValidateException(fieldName: String, value: String, message: String, cause: Option[Throwable] = None) extends Exception(cause.orNull) {
-    override lazy val toString = s"$fieldName${if(value.length > 0) s"($value)" else ""} $message"
+  case class ValidateException(field: (Symbol,Any), message: String, cause: Option[Throwable] = None) extends Exception(cause.orNull) {
+    def fieldName = field._1.name
+    def value = field._2
+    def valueStr = if(value != null && value.toString.length > 0) s"(${value.toString})" else ""
+    override lazy val toString = s"$fieldName$valueStr $message"
     override def getMessage = toString
   }
   
-  def validate(fieldName: String, value: Any, test: Boolean, message : String) =
-    if(test) Nil else ValidateException(fieldName, value.toString, message) :: Nil
+  def validate(field: (Symbol, Any), test: Boolean, message : String) =
+    if(test) Nil else ValidateException(field, message) :: Nil
+  object Validate {
+
+    implicit class pimpMySymbolTuple2[A](val field: (Symbol, A)) extends AnyVal {
+      def fieldName = field._1
+      def value = field._2
+    }
+
+    def isSet(field: (Symbol,String)) = validate(field,field.value != null && field.value.length > 0, "must be set")
+
+    def min(field: (Symbol,Int))(min: Int) = validate(field, field.value > min, s"must be greater than $min")
+    def max(field: (Symbol,Int))(max: Int) = validate(field, field.value < max, s"must be less than $max")
+    def rng(field: (Symbol,Int))(min: Int, max: Int) = validate(field, min < field.value && field.value < max, s"must be greater than $min and less than $max")
+
+  }
   def validateAll(vs: List[ValidateException]*) : List[ValidateException] = vs.reduce(_ ::: _)
 
-  case class HandleValidateFormat[A](fmt: Format[A]) extends Format[A] {
+  case class HandleValidateExceptionFormat[A](fmt: Format[A]) extends Format[A] {
     private[this] def handler: PartialFunction[Throwable,JsError] = {
       case ve : ValidateException => {
         // Associate the path to the field with the error
@@ -90,17 +107,17 @@ object ParsePattern9 {
     lastName: String,
     age: Int
   ) {
+    import Validate._
     validateAll(
-      validate("firstName",  firstName,     firstName.length > 0,   "must not be empty"),
-      validate("middleName", middleName,    middleName.length > 0,  "must not be empty"),
-      validate("lastName",   lastName,      lastName.length > 0,    "must not be empty"),
-      validate("age",        age,           age > 0,                s"must be greater than 0"),
-      validate("age",        age,           age < 150,              s"must be less than 150")
+      isSet('firstName -> firstName),
+      isSet('middleName -> middleName),
+      isSet('lastName -> lastName),
+      rng('age -> age)(0 ,  150)
     ).throwIfFailure
   }
 
   object Person {
-    implicit val json = HandleValidateFormat[Person](Json.format[Person])
+    implicit val json = HandleValidateExceptionFormat[Person](Json.format[Person])
 //      (
 //        (__ \ "firstName").format[String] and
 //        (__ \ "middleName").format[String] and
@@ -112,15 +129,14 @@ object ParsePattern9 {
   }
 
   def parsePerson(xml: NodeSeq) : Try[Person] = {
-    def extract(fieldName : String) : String =
-      (xml \ fieldName).headOption.getOrElse(throw ValidateException(fieldName,"","missing")).text
+    def extract(fieldName : String) : String = (xml \ fieldName).headOption.map(_.text).getOrElse(throw new ValidateException(Symbol(fieldName) -> null,"must be set"))
 
     def extractMap[T](fieldName : String, f: String => T) : T = {
       val v = extract(fieldName)
       try {
         f(v)
       } catch {
-        case e : Exception => throw ValidateException(fieldName,v,"is invalid", Some(e))
+        case e : Exception => throw ValidateException(Symbol(fieldName) -> v,"is invalid", Some(e))
       }
     }
 
