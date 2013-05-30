@@ -15,28 +15,28 @@ import play.api.data.validation.ValidationError
 object ParsePattern9 {
   import TryAll.util._
 
-  case class HandleValidateExceptionFormat[A](fmt: Format[A]) extends Format[A] {
-    private[this] def handler: PartialFunction[Throwable,JsError] = {
-      case ve : ValidateException => {
-        // Associate the path to the field with the error
-        val key = JsPath(KeyPathNode(ve.field.toString) :: Nil)
-        val errors = ValidationError(ve.getMessage) :: Nil
-        JsError((key,errors) :: Nil)
-      }
-      case e : Exception => JsError(ValidationError(e.getMessage))
-    }
-
-    def reads(jv: JsValue): JsResult[A] = {
-      try {
-        fmt.reads(jv)
-      } catch {
-        case Exceptions(list) => list.map(handler(_)).reduce(_ ++ _)
-        case e : Exception => handler(e)
-      }
-    }
-
-    def writes(a: A): JsValue = fmt.writes(a)
-  }
+//  case class HandleValidateExceptionFormat[A](fmt: Format[A]) extends Format[A] {
+//    private[this] def handler: PartialFunction[Throwable,JsError] = {
+//      case ve : ValidateException => {
+//        // Associate the path to the field with the error
+//        val key = JsPath(KeyPathNode(ve.field.toString) :: Nil)
+//        val errors = ValidationError(ve.getMessage) :: Nil
+//        JsError((key,errors) :: Nil)
+//      }
+//      case e : Exception => JsError(ValidationError(e.getMessage))
+//    }
+//
+//    def reads(jv: JsValue): JsResult[A] = {
+//      try {
+//        fmt.reads(jv)
+//      } catch {
+//        case Exceptions(list) => list.map(handler(_)).reduce(_ ++ _)
+//        case e : Exception => handler(e)
+//      }
+//    }
+//
+//    def writes(a: A): JsValue = fmt.writes(a)
+//  }
 
   case class Person(
     firstName: String,
@@ -54,10 +54,30 @@ object ParsePattern9 {
   }
 
   object Person {
-    implicit val json = HandleValidateExceptionFormat[Person](Json.format[Person])
-
     // A Person that passes validation whose fields can be used for partial validation
     val valid = Person("dummy value", "dummy value", "dummy value", 35)
+l
+    def validate_json[A](validate: A => Unit)(implicit a_reads: Reads[A]) = new Reads[A] {
+      def reads(jv: JsValue): JsResult[A] = {
+        a_reads.reads(jv).flatMap({ a =>
+          try {
+            validate(a)
+            JsSuccess(a)
+          } catch {
+            case e : Exception => JsError(ValidationError(e.getMessage))
+          }
+        })
+      }
+    }
+
+    //HandleValidateExceptionFormat[Person](Json.format[Person])
+    implicit val json : Format[Person] = (
+      (__ \ "firstName").format[String](validate_json({ a:String => valid.copy(firstName=a)})) and
+      (__ \ "middleName").format[String](validate_json({ a:String => valid.copy(middleName=a) })) and
+      (__ \ "lastName").format[String](validate_json({ a:String => valid.copy(lastName=a)})) and
+      (__ \ "age").format[Int](validate_json({ a:Int => valid.copy(age=a)}))
+    )(apply _, unlift(unapply))
+
   }
 
   def parsePerson(xml: NodeSeq) : Try[Person] = {

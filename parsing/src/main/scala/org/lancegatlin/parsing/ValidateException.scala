@@ -1,13 +1,12 @@
 package org.lancegatlin.parsing
 
-// Value may be null if the value wasn't set
 trait ValidateException extends Exception {
   def message : String
 
   def field : Symbol
   def value : Option[Any]
 
-  def valueStr = value.map(v => s"(${v.toString})").getOrElse("")
+  def valueStr = value.map(v => if(v.toString.length > 0) s"(${v.toString})" else "").getOrElse("")
 
   override lazy val toString = s"${field.name}$valueStr $message"
   override def getMessage = toString
@@ -33,8 +32,12 @@ object MissingValueException {
 }
 
 object ValidateException {
-  import TryAll.util._
-
+  def apply(_field: Symbol, _value: Any, _message: String, cause: Option[Throwable] = None) = new ValidateException {
+    def field = _field
+    lazy val value = Some(_value)
+    def message = _message
+    override def getCause = cause.orNull
+  }
   def apply(fieldPair: (Symbol,Any), _message: String, cause: Option[Throwable] = None) = new ValidateException {
     def field = fieldPair._1
     lazy val value = Some(fieldPair._2)

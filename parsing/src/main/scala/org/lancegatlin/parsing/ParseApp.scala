@@ -1,6 +1,7 @@
 package org.lancegatlin.parsing
 
 import scala.util._
+import play.api.libs.json._
 
 object ParseApp extends App {
 // TODO: Move this to separate experiment don't complicate this example with custom XML dsl
@@ -89,8 +90,27 @@ object ParseApp extends App {
     println("Parse9\n----")
     xml map(xml => ParsePattern9.parsePerson(xml \ "person")) foreach(println(_))
 
-//    println(Try(ParsePattern8.Person("l","d","g",165)))
-//    println(Try(ParsePattern8.Person("","","",-1)))
+    println("Parse9.json\n----")
+
+    {
+      import ParsePattern9._
+      val jsons =
+        """{"firstName":"Lance","middleName":"David","lastName":"Gatlin","age":35}""" ::
+        """{"firstName":"Lance","lastName":"Gatlin","age":35}""" ::
+        """{"firstName":"Lance","middleName":"David","lastName":"Gatlin","age":"thirty-five!"}""" ::
+        """{"firstName":"Lance","lastName":"Gatlin"}""" ::
+        """{"firstName":"Lance","middleName":"David","lastName":"Gatlin","age":165}""" ::
+          """{"firstName":null,"middleName":null,"lastName":null,"age":-1}""" ::
+        Nil
+
+
+      jsons.map({ json =>
+        println(json)
+        val jv = Json.parse(json)
+        println(Person.json.reads(jv))
+      })
+    }
+
   }
 }
 
